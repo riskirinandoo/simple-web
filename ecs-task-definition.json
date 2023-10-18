@@ -1,0 +1,18 @@
+{
+  "family": "web",
+  "containerDefinitions": [
+    {
+      "name": "web",
+      "image": "112113402575.dkr.ecr.us-east-1.amazonaws.com/simple-web:latest",
+      "cpu": 256,
+      "memory": 512,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "hostPort": 80
+        }
+      ]
+    }
+  ]
+}
