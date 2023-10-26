@@ -3,27 +3,25 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      docker: 20
-    commands:
-      - echo Installing application dependencies...
-      # Add any additional installation commands here
+      docker: 18
 
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 112113402575.dkr.ecr.us-east-1.amazonaws.com
+      - aws ecr get-login --no-include-email --region us-east-1
 
   build:
     commands:
-      - echo Building Docker image...
-      - docker build -t simple-web:latest .
-      - docker tag simple-web:latest 112113402575.dkr.ecr.us-east-1.amazonaws.com/simple-web:latest
+      - echo Building the Docker image...
+      - docker build -t simple-web:$CODEBUILD_RESOLVED_SOURCE_VERSION .
+      - docker tag simple-web:$CODEBUILD_RESOLVED_SOURCE_VERSION 112113402575.dkr.ecr.us-east-1.amazonaws.com/simple-web:$CODEBUILD_RESOLVED_SOURCE_VERSION
 
   post_build:
     commands:
-      - echo Pushing Docker image to Amazon ECR...
-      - docker push 112113402575.dkr.ecr.us-east-1.amazonaws.com/simple-web:latest
-      # Add any additional post-build commands here
+      - echo Pushing the Docker image to Amazon ECR...
+      - docker push 112113402575.dkr.ecr.us-east-1.amazonaws.com/simple-web:$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - echo Writing image definitions file...
+      - printf '[{"name":"container-name","imageUri":"%s"}]' 112113402575.dkr.ecr.us-east-1.amazonaws.com/simple-web:$CODEBUILD_RESOLVED_SOURCE_VERSION > imagedefinitions.json
 
 artifacts:
   files: imagedefinitions.json
